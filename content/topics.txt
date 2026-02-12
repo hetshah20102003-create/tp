@@ -1,0 +1,11 @@
+# LinkedIn Post Topics
+# Add one topic per line. Claude will pick a topic and write a post about it.
+# Be as specific or general as you like.
+#
+# Examples:
+AI in healthcare
+Startup lessons learned
+Productivity tips for founders
+The future of remote work
+Building a personal brand on LinkedIn
+Lessons from failing fast
