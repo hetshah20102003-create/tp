@@ -1,0 +1,23 @@
+# AWS Amplify Custom Headers
+/firebase-messaging-sw.js
+  Content-Type: application/javascript; charset=utf-8
+  Service-Worker-Allowed: /
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/*.js
+  Content-Type: application/javascript; charset=utf-8
+
+# Audio files
+/sounds/*.mp3
+  Content-Type: audio/mpeg
+  Cache-Control: public, max-age=31536000
+
+# Image files
+/icons/*.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000
+
+/*.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000
+

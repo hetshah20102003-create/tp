@@ -1,0 +1,12 @@
+# Redirect rules for AWS Amplify
+# Serve static assets directly (images, sounds, etc.)
+/sounds/*  /sounds/:splat  200
+/icons/*   /icons/:splat   200
+/*.png     /:splat.png     200
+/*.jpg     /:splat.jpg     200
+/*.mp3     /:splat.mp3     200
+/*.js      /:splat.js      200
+
+# SPA fallback - all other routes should serve index.html
+/*    /index.html   200
+
