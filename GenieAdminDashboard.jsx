@@ -1,0 +1,708 @@
+// Genie Admin Portal — Dashboard Page — Super Admin View
+
+import React, { useState, useEffect, useRef } from 'react';
+
+// ─── MOCK DATA ───────────────────────────────────────────────────────────────
+
+const mockData = {
+  today: {
+    orders: { placed: 34, completed: 27, inQueue: 4, unfulfilled: 3 },
+    fulfillmentRate: 79.4,
+    avgTimeToReach: 23,
+    avgTimeToReachPrev: 26,
+    onDemandVsScheduled: { onDemand: 23, scheduled: 11 },
+    slotDuration: { '2hr': 18, '3hr': 24, '4hr': 21, '5hr': 14, '6hr': 15, '8hr': 8 },
+    bookingWindows: [
+      { window: '9–12am', pct: 42, avgSlot: 3.2, revShare: 38 },
+      { window: '12–3pm', pct: 35, avgSlot: 3.8, revShare: 41 },
+      { window: '3–6pm', pct: 23, avgSlot: 2.9, revShare: 21 },
+    ],
+    revenue: 21400,
+    revenuePrev: 18900,
+    avgOrderValue: 1867,
+    avgOrderValuePrev: 1720,
+    totalUsers: 312,
+    totalUsersPrev: 308,
+    newUsers: 4,
+    activeHelpers: 38,
+    activeHelpersPrev: 35,
+    hubUtilization: [
+      { hub: 'Narol', pct: 82 },
+      { hub: 'Vatva', pct: 89 },
+      { hub: 'Odhav', pct: 67 },
+      { hub: 'Pirana', pct: 41 },
+    ],
+    newHelpers: 1,
+    newHelpersPrev: 0,
+    helpersAtRisk: 3,
+    activeCustomers: 21,
+    activeCustomersPrev: 19,
+    newCustomers: 2,
+    newCustomersPrev: 1,
+    repeatBookingRate: 64,
+    repeatBookingRatePrev: 61,
+    onDemandToScheduledConversion: 18,
+    onDemandToScheduledConversionPrev: 15,
+    prevOrders: { placed: 29, completed: 23, unfulfilled: 4 },
+    prevFulfillmentRate: 79.3,
+  },
+  thisWeek: {
+    orders: { placed: 198, completed: 162, inQueue: 4, unfulfilled: 17 },
+    fulfillmentRate: 81.8,
+    avgTimeToReach: 21,
+    avgTimeToReachPrev: 24,
+    onDemandVsScheduled: { onDemand: 134, scheduled: 64 },
+    slotDuration: { '2hr': 16, '3hr': 22, '4hr': 23, '5hr': 17, '6hr': 14, '8hr': 8 },
+    bookingWindows: [
+      { window: '9–12am', pct: 39, avgSlot: 3.4, revShare: 36 },
+      { window: '12–3pm', pct: 38, avgSlot: 3.9, revShare: 43 },
+      { window: '3–6pm', pct: 23, avgSlot: 3.1, revShare: 21 },
+    ],
+    revenue: 124800,
+    revenuePrev: 109200,
+    avgOrderValue: 2031,
+    avgOrderValuePrev: 1924,
+    totalUsers: 312,
+    totalUsersPrev: 295,
+    newUsers: 17,
+    activeHelpers: 47,
+    activeHelpersPrev: 42,
+    hubUtilization: [
+      { hub: 'Narol', pct: 78 },
+      { hub: 'Vatva', pct: 91 },
+      { hub: 'Odhav', pct: 63 },
+      { hub: 'Pirana', pct: 39 },
+    ],
+    newHelpers: 4,
+    newHelpersPrev: 2,
+    helpersAtRisk: 5,
+    activeCustomers: 24,
+    activeCustomersPrev: 21,
+    newCustomers: 8,
+    newCustomersPrev: 5,
+    repeatBookingRate: 67,
+    repeatBookingRatePrev: 63,
+    onDemandToScheduledConversion: 21,
+    onDemandToScheduledConversionPrev: 18,
+    prevOrders: { placed: 174, completed: 139, unfulfilled: 19 },
+    prevFulfillmentRate: 79.9,
+  },
+  thisMonth: {
+    orders: { placed: 847, completed: 703, inQueue: 4, unfulfilled: 72 },
+    fulfillmentRate: 83.0,
+    avgTimeToReach: 19,
+    avgTimeToReachPrev: 22,
+    onDemandVsScheduled: { onDemand: 568, scheduled: 279 },
+    slotDuration: { '2hr': 14, '3hr': 21, '4hr': 24, '5hr': 18, '6hr': 15, '8hr': 8 },
+    bookingWindows: [
+      { window: '9–12am', pct: 37, avgSlot: 3.5, revShare: 35 },
+      { window: '12–3pm', pct: 40, avgSlot: 4.1, revShare: 44 },
+      { window: '3–6pm', pct: 23, avgSlot: 3.2, revShare: 21 },
+    ],
+    revenue: 482600,
+    revenuePrev: 431000,
+    avgOrderValue: 2194,
+    avgOrderValuePrev: 2041,
+    totalUsers: 312,
+    totalUsersPrev: 268,
+    newUsers: 44,
+    activeHelpers: 53,
+    activeHelpersPrev: 46,
+    hubUtilization: [
+      { hub: 'Narol', pct: 74 },
+      { hub: 'Vatva', pct: 89 },
+      { hub: 'Odhav', pct: 61 },
+      { hub: 'Pirana', pct: 38 },
+    ],
+    newHelpers: 12,
+    newHelpersPrev: 8,
+    helpersAtRisk: 7,
+    activeCustomers: 28,
+    activeCustomersPrev: 23,
+    newCustomers: 19,
+    newCustomersPrev: 14,
+    repeatBookingRate: 71,
+    repeatBookingRatePrev: 66,
+    onDemandToScheduledConversion: 24,
+    onDemandToScheduledConversionPrev: 19,
+    prevOrders: { placed: 736, completed: 598, unfulfilled: 83 },
+    prevFulfillmentRate: 81.2,
+  },
+};
+
+const sparklineData = {
+  revenue: [310000, 358000, 389000, 401000, 421000, 447000, 464000, 482600],
+  fulfillmentRate: [74.2, 76.1, 77.8, 79.3, 80.1, 81.4, 82.2, 83.0],
+  helperUtilization: [61, 63, 65, 68, 71, 73, 75, 75.25],
+  avgOrderValue: [1820, 1880, 1940, 1990, 2041, 2100, 2150, 2194],
+  activeCustomers: [14, 16, 18, 20, 22, 24, 26, 28],
+};
+
+const ALERTS = [
+  { id: 1, severity: 'critical', text: '3 orders unassigned > 8 mins', module: 'Order Queue' },
+  { id: 2, severity: 'critical', text: 'Narol hub: 0 helpers available, 2 orders incoming', module: 'Hub Management' },
+  { id: 3, severity: 'warning', text: 'Ramesh K: rating dropped to 61% this week', module: 'Helper Profile' },
+  { id: 4, severity: 'warning', text: 'Vatva hub utilization at 89% — supply crunch risk', module: 'Hub Management' },
+  { id: 5, severity: 'warning', text: 'Payout liability ₹43,200 unpaid > 7 days', module: 'Payout Module' },
+];
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+const inr = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+
+const pctChange = (curr, prev) => {
+  if (!prev) return 0;
+  return ((curr - prev) / prev) * 100;
+};
+
+const ChangeBadge = ({ curr, prev, suffix = '%', invert = false }) => {
+  const delta = pctChange(curr, prev);
+  const isPositive = invert ? delta < 0 : delta > 0;
+  const isNegative = invert ? delta > 0 : delta < 0;
+  const color = isPositive ? '#16A34A' : isNegative ? '#DC2626' : '#6B7280';
+  const arrow = delta > 0 ? '↑' : delta < 0 ? '↓' : '→';
+  return (
+    <span style={{ color, fontSize: 12, fontWeight: 600, marginLeft: 6 }}>
+      {arrow} {Math.abs(delta).toFixed(1)}{suffix}
+    </span>
+  );
+};
+
+// ─── SPARKLINE ───────────────────────────────────────────────────────────────
+
+const Sparkline = ({ data, title, value, format = (v) => v }) => {
+  const W = 160, H = 48;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 8) - 4;
+    return `${x},${y}`;
+  });
+  const trending = data[data.length - 1] >= data[0];
+  const color = trending ? '#16A34A' : '#DC2626';
+  const fill = trending ? 'rgba(22,163,74,0.08)' : 'rgba(220,38,38,0.08)';
+
+  const areaPath = `M${pts[0]} ${pts.slice(1).map(p => 'L' + p).join(' ')} L${W},${H} L0,${H} Z`;
+  const linePath = `M${pts[0]} ${pts.slice(1).map(p => 'L' + p).join(' ')}`;
+
+  return (
+    <div style={{ minWidth: 180, flex: 1, background: '#fff', borderRadius: 8, border: '1px solid #E2E5EC', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: "'DM Mono', monospace" }}>{title}</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: '#0F1117', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.5px', fontFamily: "'IBM Plex Sans', sans-serif" }}>{format(data[data.length - 1])}</div>
+      <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ marginTop: 4, height: 48 }}>
+        <path d={areaPath} fill={fill} />
+        <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx={pts[pts.length - 1].split(',')[0]} cy={pts[pts.length - 1].split(',')[1]} r="3" fill={color} />
+      </svg>
+    </div>
+  );
+};
+
+// ─── METRIC CARD ─────────────────────────────────────────────────────────────
+
+const MetricCard = ({ label, value, prev, suffix = '', invert = false, secondary, children, highlight = false }) => (
+  <div style={{
+    background: highlight ? 'linear-gradient(135deg, #1F6F76 0%, #155e63 100%)' : '#fff',
+    border: highlight ? 'none' : '1px solid #E2E5EC',
+    borderRadius: 8,
+    padding: '14px 16px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+    transition: 'box-shadow 0.15s',
+    cursor: 'default',
+  }}
+    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.10)'}
+    onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'}
+  >
+    <div style={{ fontSize: 11, color: highlight ? 'rgba(255,255,255,0.75)' : '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, fontFamily: "'DM Mono', monospace" }}>{label}</div>
+    {value !== undefined && (
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, color: highlight ? '#fff' : '#0F1117', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px', fontFamily: "'IBM Plex Sans', sans-serif" }}>
+          {value}{suffix}
+        </span>
+        {prev !== undefined && <ChangeBadge curr={parseFloat(value)} prev={parseFloat(prev)} suffix="%" invert={invert} />}
+      </div>
+    )}
+    {secondary && <div style={{ fontSize: 12, color: highlight ? 'rgba(255,255,255,0.65)' : '#9CA3AF', marginTop: 3 }}>{secondary}</div>}
+    {children}
+  </div>
+);
+
+// ─── COLUMN A — OPERATIONS ───────────────────────────────────────────────────
+
+const SLOT_COLORS = { '2hr': '#1F6F76', '3hr': '#2D9B9E', '4hr': '#F59E0B', '5hr': '#8B5CF6', '6hr': '#EC4899', '8hr': '#6B7280' };
+
+const ColumnA = ({ d }) => {
+  const totalSlots = Object.values(d.slotDuration).reduce((a, b) => a + b, 0);
+  const totalBookings = d.onDemandVsScheduled.onDemand + d.onDemandVsScheduled.scheduled;
+  const odPct = Math.round((d.onDemandVsScheduled.onDemand / totalBookings) * 100);
+  const schPct = 100 - odPct;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* Orders Placed */}
+      <MetricCard label="Orders Placed" value={d.orders.placed} prev={d.prevOrders.placed} />
+      {/* Orders Completed */}
+      <MetricCard label="Orders Completed" value={d.orders.completed} prev={d.prevOrders.completed} />
+      {/* Orders In Queue */}
+      <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, fontFamily: "'DM Mono', monospace" }}>Orders In Queue</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+          <span style={{ fontSize: 28, fontWeight: 700, color: '#0F1117', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px', fontFamily: "'IBM Plex Sans', sans-serif" }}>{d.orders.inQueue}</span>
+          <span style={{ fontSize: 11, color: '#1F6F76', fontWeight: 600, background: 'rgba(31,111,118,0.08)', padding: '2px 6px', borderRadius: 4 }}>right now</span>
+        </div>
+      </div>
+      {/* Orders Unfulfilled */}
+      <MetricCard label="Orders Unfulfilled" value={d.orders.unfulfilled} prev={d.prevOrders.unfulfilled} invert={true} />
+      {/* Fulfillment Rate */}
+      <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, fontFamily: "'DM Mono', monospace" }}>Fulfillment Rate</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+          <span style={{ fontSize: 28, fontWeight: 700, color: '#0F1117', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px', fontFamily: "'IBM Plex Sans', sans-serif" }}>{d.fulfillmentRate.toFixed(1)}%</span>
+          <ChangeBadge curr={d.fulfillmentRate} prev={d.prevFulfillmentRate} />
+        </div>
+        <div style={{ marginTop: 8, height: 6, background: '#E2E5EC', borderRadius: 9999, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${d.fulfillmentRate}%`, background: '#1F6F76', borderRadius: 9999, transition: 'width 0.5s ease' }} />
+        </div>
+      </div>
+      {/* Avg Time to Reach */}
+      <MetricCard label="Avg Time to Reach Client" value={d.avgTimeToReach} prev={d.avgTimeToReachPrev} suffix=" min" invert={true} secondary="Minutes from assignment to arrival" />
+      {/* On-Demand vs Scheduled */}
+      <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, fontFamily: "'DM Mono', monospace" }}>On-Demand vs Scheduled</div>
+        <div style={{ height: 10, borderRadius: 9999, overflow: 'hidden', display: 'flex' }}>
+          <div style={{ width: `${odPct}%`, background: '#1F6F76', transition: 'width 0.5s' }} />
+          <div style={{ width: `${schPct}%`, background: '#D97706' }} />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+          <div>
+            <span style={{ fontSize: 11, color: '#1F6F76', fontWeight: 700 }}>On-Demand {odPct}%</span>
+            <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 4 }}>({d.onDemandVsScheduled.onDemand})</span>
+          </div>
+          <div>
+            <span style={{ fontSize: 11, color: '#D97706', fontWeight: 700 }}>Scheduled {schPct}%</span>
+            <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 4 }}>({d.onDemandVsScheduled.scheduled})</span>
+          </div>
+        </div>
+      </div>
+      {/* Slot Duration Distribution */}
+      <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, fontFamily: "'DM Mono', monospace" }}>Slot Duration Distribution</div>
+        <div style={{ height: 12, borderRadius: 9999, overflow: 'hidden', display: 'flex' }}>
+          {Object.entries(d.slotDuration).map(([k, v]) => (
+            <div key={k} style={{ width: `${(v / totalSlots) * 100}%`, background: SLOT_COLORS[k], transition: 'width 0.5s' }} title={`${k}: ${v}%`} />
+          ))}
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 10px', marginTop: 8 }}>
+          {Object.entries(d.slotDuration).map(([k, v]) => (
+            <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 8, height: 8, borderRadius: 2, background: SLOT_COLORS[k] }} />
+              <span style={{ fontSize: 11, color: '#6B7280' }}>{k} <strong style={{ color: '#374151' }}>{v}%</strong></span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Booking Window Distribution */}
+      <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, fontFamily: "'DM Mono', monospace" }}>Booking Window Distribution</div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', color: '#9CA3AF', fontWeight: 500, paddingBottom: 4, fontSize: 11 }}>Window</th>
+              <th style={{ textAlign: 'right', color: '#9CA3AF', fontWeight: 500, paddingBottom: 4, fontSize: 11 }}>% Bookings</th>
+              <th style={{ textAlign: 'right', color: '#9CA3AF', fontWeight: 500, paddingBottom: 4, fontSize: 11 }}>Avg Slot</th>
+              <th style={{ textAlign: 'right', color: '#9CA3AF', fontWeight: 500, paddingBottom: 4, fontSize: 11 }}>Rev %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {d.bookingWindows.map((row, i) => {
+              const isMax = row.pct === Math.max(...d.bookingWindows.map(r => r.pct));
+              return (
+                <tr key={i} style={{ background: isMax ? 'rgba(31,111,118,0.06)' : 'transparent' }}>
+                  <td style={{ padding: '5px 4px', borderRadius: isMax ? '4px 0 0 4px' : 0, fontWeight: isMax ? 700 : 400, color: isMax ? '#1F6F76' : '#374151' }}>{row.window}</td>
+                  <td style={{ textAlign: 'right', padding: '5px 4px', fontVariantNumeric: 'tabular-nums', color: '#374151' }}>{row.pct}%</td>
+                  <td style={{ textAlign: 'right', padding: '5px 4px', fontVariantNumeric: 'tabular-nums', color: '#374151' }}>{row.avgSlot}h</td>
+                  <td style={{ textAlign: 'right', padding: '5px 4px', borderRadius: isMax ? '0 4px 4px 0' : 0, fontVariantNumeric: 'tabular-nums', color: '#374151' }}>{row.revShare}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+// ─── COLUMN B — REVENUE ───────────────────────────────────────────────────────
+
+const ColumnB = ({ d }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    {/* Total Revenue — hero card */}
+    <div style={{ background: 'linear-gradient(135deg, #0F1117 0%, #1A1D27 100%)', borderRadius: 8, padding: '20px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.18)' }}>
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8, fontFamily: "'DM Mono', monospace" }}>Total Revenue</div>
+      <div style={{ fontSize: 38, fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1.5px', fontFamily: "'IBM Plex Sans', sans-serif" }}>
+        {inr(d.revenue)}
+      </div>
+      <div style={{ marginTop: 6 }}>
+        <ChangeBadge curr={d.revenue} prev={d.revenuePrev} />
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>vs prev period</span>
+      </div>
+    </div>
+    {/* Avg Order Value */}
+    <MetricCard
+      label="Avg Order Value"
+      value={inr(d.avgOrderValue)}
+      prev={d.avgOrderValuePrev}
+      secondary="Per completed order"
+    >
+      <ChangeBadge curr={d.avgOrderValue} prev={d.avgOrderValuePrev} />
+    </MetricCard>
+    {/* Total Users */}
+    <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, fontFamily: "'DM Mono', monospace" }}>Total Registered Users</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+        <span style={{ fontSize: 28, fontWeight: 700, color: '#0F1117', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px', fontFamily: "'IBM Plex Sans', sans-serif" }}>{d.totalUsers.toLocaleString('en-IN')}</span>
+        <ChangeBadge curr={d.totalUsers} prev={d.totalUsersPrev} />
+      </div>
+      <div style={{ fontSize: 12, color: '#6B7280', marginTop: 3 }}>
+        <span style={{ color: '#16A34A', fontWeight: 600 }}>+{d.newUsers} new</span> this period
+      </div>
+    </div>
+  </div>
+);
+
+// ─── COLUMN C — SUPPLY & DEMAND ──────────────────────────────────────────────
+
+const HubBar = ({ hub, pct }) => {
+  const color = pct >= 85 ? '#D97706' : pct < 45 ? '#9CA3AF' : '#1F6F76';
+  const filled = Math.round(pct / 10);
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+      <div style={{ width: 46, fontSize: 11, color: '#374151', fontWeight: 600, fontFamily: "'DM Mono', monospace" }}>{hub}</div>
+      <div style={{ flex: 1, display: 'flex', gap: 2 }}>
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} style={{ flex: 1, height: 8, borderRadius: 2, background: i < filled ? color : '#E2E5EC', transition: 'background 0.3s' }} />
+        ))}
+      </div>
+      <div style={{ width: 36, textAlign: 'right', fontSize: 12, fontWeight: 700, color, fontVariantNumeric: 'tabular-nums' }}>{pct}%</div>
+    </div>
+  );
+};
+
+const ColumnC = ({ d }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    {/* Section label */}
+    <div style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: "'DM Mono', monospace", paddingLeft: 2 }}>Helpers</div>
+    {/* Active Helpers */}
+    <MetricCard label="Active Helpers" value={d.activeHelpers} prev={d.activeHelpersPrev} secondary="Deployed this period" />
+    {/* Hub Utilization */}
+    <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontFamily: "'DM Mono', monospace" }}>Hub Utilization</div>
+      {d.hubUtilization.map(h => <HubBar key={h.hub} hub={h.hub} pct={h.pct} />)}
+    </div>
+    {/* New Helpers */}
+    <MetricCard label="New Helpers Onboarded" value={d.newHelpers} prev={d.newHelpersPrev} secondary="Joined this period" />
+    {/* Helpers At Risk */}
+    <div style={{ background: '#fff', border: '1px solid #E2E5EC', borderRadius: 8, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, fontFamily: "'DM Mono', monospace" }}>Helpers At Risk</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: d.helpersAtRisk > 0 ? '#DC2626' : '#16A34A', boxShadow: d.helpersAtRisk > 0 ? '0 0 0 3px rgba(220,38,38,0.2)' : 'none' }} />
+        <span style={{ fontSize: 28, fontWeight: 700, color: d.helpersAtRisk > 0 ? '#DC2626' : '#16A34A', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px', fontFamily: "'IBM Plex Sans', sans-serif" }}>{d.helpersAtRisk}</span>
+      </div>
+      <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 3 }}>0 jobs in last 14 days</div>
+    </div>
+
+    {/* Section label */}
+    <div style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: "'DM Mono', monospace", paddingLeft: 2, marginTop: 4 }}>Customers</div>
+    {/* Active Customers */}
+    <MetricCard label="Active Customers" value={d.activeCustomers} prev={d.activeCustomersPrev} secondary="Placed at least 1 order" />
+    {/* New Customers */}
+    <MetricCard label="New Customers" value={d.newCustomers} prev={d.newCustomersPrev} secondary="First order this period" />
+    {/* Repeat Booking Rate */}
+    <MetricCard label="Repeat Booking Rate" value={`${d.repeatBookingRate}`} prev={d.repeatBookingRatePrev} suffix="%" secondary="Customers with 2+ orders" />
+    {/* Conversion Rate — highlight card */}
+    <div style={{
+      background: 'linear-gradient(135deg, #1F6F76 0%, #155e63 100%)',
+      borderRadius: 8,
+      padding: '14px 16px',
+      boxShadow: '0 4px 12px rgba(31,111,118,0.3)',
+      cursor: 'default',
+      transition: 'box-shadow 0.15s',
+    }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 20px rgba(31,111,118,0.4)'}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 12px rgba(31,111,118,0.3)'}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1L11 5H8V9H6V5H3L7 1Z" fill="rgba(255,255,255,0.8)" />
+          <rect x="3" y="10" width="8" height="2" rx="1" fill="rgba(255,255,255,0.6)" />
+        </svg>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: "'DM Mono', monospace" }}>On-Demand → Scheduled</div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+        <span style={{ fontSize: 28, fontWeight: 700, color: '#fff', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px', fontFamily: "'IBM Plex Sans', sans-serif" }}>{d.onDemandToScheduledConversion}%</span>
+        <ChangeBadge curr={d.onDemandToScheduledConversion} prev={d.onDemandToScheduledConversionPrev} />
+      </div>
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 3 }}>Conversion to scheduled bookings</div>
+    </div>
+  </div>
+);
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
+
+export default function GenieAdminDashboard() {
+  const [tab, setTab] = useState('today');
+  const [customRange, setCustomRange] = useState({ from: '', to: '' });
+  const [showCustom, setShowCustom] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(0);
+  const alertStripRef = useRef(null);
+
+  const d = mockData[tab] || mockData.today;
+
+  // Auto-refresh counter
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLastUpdated(prev => (prev >= 10 ? 0 : prev + 1));
+    }, 18000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Alert strip slow auto-scroll
+  useEffect(() => {
+    const el = alertStripRef.current;
+    if (!el) return;
+    let raf;
+    let pos = 0;
+    const scroll = () => {
+      pos += 0.4;
+      if (pos > el.scrollWidth - el.clientWidth) pos = 0;
+      el.scrollLeft = pos;
+      raf = requestAnimationFrame(scroll);
+    };
+    raf = requestAnimationFrame(scroll);
+    el.addEventListener('mouseenter', () => cancelAnimationFrame(raf));
+    el.addEventListener('mouseleave', () => { raf = requestAnimationFrame(scroll); });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const tabs = [
+    { key: 'today', label: 'Today' },
+    { key: 'thisWeek', label: 'This Week' },
+    { key: 'thisMonth', label: 'This Month' },
+    { key: 'custom', label: 'Custom Range' },
+  ];
+
+  const handleAlertClick = (alert) => {
+    console.log(`Navigate to: ${alert.module}`, alert);
+  };
+
+  return (
+    <>
+      {/* Google Fonts */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Mono:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #F7F8FA; }
+        ::-webkit-scrollbar { height: 4px; width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 9999px; }
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.4); }
+        }
+        @keyframes slide-in {
+          from { opacity: 0; transform: translateY(-6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <div style={{ fontFamily: "'IBM Plex Sans', sans-serif", background: '#F7F8FA', minHeight: '100vh' }}>
+
+        {/* ── ZONE 1: TOP BAR ─────────────────────────────────────────────── */}
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+          background: '#0F1117',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          height: 56,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 20px',
+          gap: 16,
+        }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontWeight: 700, fontSize: 18, color: '#1F6F76', letterSpacing: '-0.5px' }}>
+              GENIE
+            </div>
+            <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.15)' }} />
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Admin Portal</div>
+          </div>
+
+          {/* Time Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 3 }}>
+            {tabs.map(t => (
+              <button key={t.key} onClick={() => { setTab(t.key); if (t.key === 'custom') setShowCustom(true); else setShowCustom(false); }}
+                style={{
+                  padding: '5px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                  fontFamily: "'IBM Plex Sans', sans-serif",
+                  background: tab === t.key ? '#1F6F76' : 'transparent',
+                  color: tab === t.key ? '#fff' : 'rgba(255,255,255,0.5)',
+                  transition: 'all 0.15s',
+                  whiteSpace: 'nowrap',
+                }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Custom Range inline */}
+          {showCustom && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '4px 10px', animation: 'slide-in 0.15s ease' }}>
+              <input type="date" value={customRange.from} onChange={e => setCustomRange(p => ({ ...p, from: e.target.value }))}
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 4, color: '#fff', fontSize: 11, padding: '3px 6px', colorScheme: 'dark' }} />
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>→</span>
+              <input type="date" value={customRange.to} onChange={e => setCustomRange(p => ({ ...p, to: e.target.value }))}
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 4, color: '#fff', fontSize: 11, padding: '3px 6px', colorScheme: 'dark' }} />
+              <button onClick={() => console.log('Apply range:', customRange)}
+                style={{ background: '#1F6F76', border: 'none', borderRadius: 4, color: '#fff', fontSize: 11, padding: '3px 10px', cursor: 'pointer', fontWeight: 600 }}>
+                Apply
+              </button>
+            </div>
+          )}
+
+          {/* Right: Live + Role + Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+            {/* Live indicator */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#16A34A', animation: 'pulse-dot 2s infinite' }} />
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', whiteSpace: 'nowrap' }}>
+                Live · {lastUpdated === 0 ? 'Just now' : `${lastUpdated}m ago`}
+              </span>
+            </div>
+            {/* Role badge */}
+            <div style={{ background: 'rgba(31,111,118,0.25)', border: '1px solid rgba(31,111,118,0.5)', borderRadius: 9999, padding: '3px 10px', fontSize: 11, color: '#5BC8CF', fontWeight: 600 }}>
+              Super Admin
+            </div>
+            {/* Action icons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {[
+                { icon: '☰', label: 'Order Queue', onClick: () => console.log('Order Queue') },
+                { icon: '👥', label: 'Helper List', onClick: () => console.log('Helper List') },
+              ].map(btn => (
+                <button key={btn.label} title={btn.label} onClick={btn.onClick}
+                  style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 6, width: 30, height: 30, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}>
+                  {btn.icon}
+                </button>
+              ))}
+              {/* Bell with badge */}
+              <button title="Alerts" onClick={() => console.log('Alerts')}
+                style={{ position: 'relative', background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 6, width: 30, height: 30, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}>
+                🔔
+                <div style={{ position: 'absolute', top: -4, right: -4, width: 16, height: 16, borderRadius: '50%', background: '#DC2626', fontSize: 9, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0F1117' }}>
+                  {ALERTS.length}
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── ZONE 2: ALERT STRIP ─────────────────────────────────────────── */}
+        {ALERTS.length > 0 && (
+          <div style={{ marginTop: 56, background: '#0F1117', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+            <div
+              ref={alertStripRef}
+              style={{ display: 'flex', gap: 8, padding: '8px 16px', overflowX: 'auto', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+            >
+              {[...ALERTS, ...ALERTS].map((alert, idx) => (
+                <button key={idx} onClick={() => handleAlertClick(alert)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 7, whiteSpace: 'nowrap', flexShrink: 0,
+                    background: alert.severity === 'critical' ? 'rgba(220,38,38,0.12)' : 'rgba(217,119,6,0.12)',
+                    border: `1px solid ${alert.severity === 'critical' ? 'rgba(220,38,38,0.4)' : 'rgba(217,119,6,0.4)'}`,
+                    borderRadius: 9999, padding: '5px 12px', cursor: 'pointer',
+                    fontSize: 12, fontWeight: 500,
+                    color: alert.severity === 'critical' ? '#FCA5A5' : '#FCD34D',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                  <span>{alert.severity === 'critical' ? '🔴' : '🟡'}</span>
+                  <span>{alert.text}</span>
+                  <span style={{ fontSize: 10, opacity: 0.6 }}>→ {alert.module}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── ZONE 3: THREE COLUMN BODY ──────────────────────────────────── */}
+        <div style={{ padding: '24px 20px', maxWidth: 1400, margin: '0 auto' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 16,
+          }}
+            className="dashboard-grid"
+          >
+            {/* Column A */}
+            <div>
+              <div style={{ background: '#1A1D27', borderRadius: 8, padding: '10px 16px', marginBottom: 12 }}>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>Operations</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>What's happening in the field</div>
+              </div>
+              <ColumnA d={d} />
+            </div>
+
+            {/* Column B */}
+            <div>
+              <div style={{ background: '#1A1D27', borderRadius: 8, padding: '10px 16px', marginBottom: 12 }}>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>Revenue</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>What the business earned</div>
+              </div>
+              <ColumnB d={d} />
+            </div>
+
+            {/* Column C */}
+            <div>
+              <div style={{ background: '#1A1D27', borderRadius: 8, padding: '10px 16px', marginBottom: 12 }}>
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, fontWeight: 700, color: '#fff', letterSpacing: '0.05em' }}>Supply & Demand</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Your helpers and customers</div>
+              </div>
+              <ColumnC d={d} />
+            </div>
+          </div>
+        </div>
+
+        {/* ── ZONE 4: SPARKLINE STRIP ────────────────────────────────────── */}
+        <div style={{ padding: '0 20px 32px', maxWidth: 1400, margin: '0 auto' }}>
+          <div style={{ borderTop: '1px solid #E2E5EC', paddingTop: 20, marginBottom: 14 }}>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.08em' }}>8-Week Trend</span>
+          </div>
+          <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
+            <Sparkline data={sparklineData.revenue} title="Revenue" format={v => inr(v)} />
+            <Sparkline data={sparklineData.fulfillmentRate} title="Fulfillment Rate" format={v => `${v.toFixed(1)}%`} />
+            <Sparkline data={sparklineData.helperUtilization} title="Helper Utilization" format={v => `${v.toFixed(1)}%`} />
+            <Sparkline data={sparklineData.avgOrderValue} title="Avg Order Value" format={v => inr(v)} />
+            <Sparkline data={sparklineData.activeCustomers} title="Active Customers" format={v => `${v}`} />
+          </div>
+        </div>
+
+        {/* Responsive styles injected */}
+        <style>{`
+          @media (max-width: 1023px) {
+            .dashboard-grid {
+              grid-template-columns: 1fr 1fr !important;
+            }
+          }
+          @media (max-width: 767px) {
+            .dashboard-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
+      </div>
+    </>
+  );
+}
