@@ -1,0 +1,70 @@
+{
+  "version": "labour-v1",
+  "initial": "greeting",
+  "states": {
+    "greeting": {
+      "say": "Namaste! Main WorryQ se bol raha hun. Kya aap kaam dhundh rahe hain?",
+      "intents": {
+        "yes": "ask_location",
+        "no": "closing_not_interested",
+        "unclear": "__llm__"
+      }
+    },
+    "ask_location": {
+      "say": "Bahut accha! Aap Ahmedabad mein kahan rehte hain? GIDC area mein?",
+      "collect": "location",
+      "intents": {
+        "any": "ask_skills"
+      }
+    },
+    "ask_skills": {
+      "say": "Aap kaunsa kaam karte hain? Jaise welding, fabrication, machining, ya kuch aur?",
+      "collect": "skills",
+      "intents": {
+        "any": "ask_experience"
+      }
+    },
+    "ask_experience": {
+      "say": "Kitne saal ka anubhav hai aapko is kaam mein?",
+      "collect": "experience_years",
+      "intents": {
+        "any": "ask_availability"
+      }
+    },
+    "ask_availability": {
+      "say": "Aap kab se kaam shuru kar sakte hain? Abhi immediately ya kuch din baad?",
+      "collect": "availability",
+      "intents": {
+        "immediate": "ask_salary",
+        "later": "ask_salary",
+        "unclear": "__llm__"
+      }
+    },
+    "ask_salary": {
+      "say": "Aapki expected salary kitni hai per month?",
+      "collect": "expected_salary",
+      "intents": {
+        "any": "closing_success"
+      }
+    },
+    "closing_success": {
+      "say": "Bahut accha! Maine aapka details note kar liya. Humara HR team aapko 2-3 din mein call karega. Dhanyawaad aur alvida!",
+      "terminal": true,
+      "outcome": "completed"
+    },
+    "closing_not_interested": {
+      "say": "Theek hai, koi baat nahi. Agar kabhi zaroorat ho to hume call karein. Dhanyawaad aur alvida!",
+      "terminal": true,
+      "outcome": "not_interested"
+    },
+    "closing_callback": {
+      "say": "Theek hai, hum baad mein call karenge. Dhanyawaad aur alvida!",
+      "terminal": true,
+      "outcome": "callback_requested"
+    }
+  },
+  "yesPatterns": ["haan", "ha", "yes", "bilkul", "zaroor", "theek hai", "ok", "haa"],
+  "noPatterns": ["nahi", "na", "no", "nai", "mat", "nhin"],
+  "immediatePatterns": ["abhi", "immediately", "kal se", "aaj se", "turant"],
+  "laterPatterns": ["baad mein", "kuch din", "mahine", "2 hafte", "next month"]
+}

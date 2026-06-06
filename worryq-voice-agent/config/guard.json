@@ -1,0 +1,9 @@
+{
+  "maxTurns": 10,
+  "offScriptStrikes": 3,
+  "silenceTimeoutMs": 8000,
+  "abusiveKeywords": [
+    "gaali", "chutiya", "madarchod", "bhenchod", "saala", "haramzada"
+  ],
+  "cutoffPhrase": "Theek hai, dhanyawaad. Alvida!"
+}

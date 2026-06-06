@@ -1,0 +1,23 @@
+{
+  "name": "worryq-voice-agent",
+  "version": "1.0.0",
+  "description": "Hindi outbound calling system for WorryQ — labour-facing, adapter-based",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "campaign": "node scripts/start-campaign.js",
+    "export": "node scripts/export-finetune.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@deepgram/sdk": "^3.5.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.1",
+    "openai": "^4.52.7",
+    "pg": "^8.12.0",
+    "twilio": "^5.2.3",
+    "uuid": "^10.0.0",
+    "ws": "^8.18.0"
+  }
+}

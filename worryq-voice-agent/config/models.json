@@ -1,0 +1,37 @@
+{
+  "active": {
+    "llm": "claude",
+    "stt": "deepgram",
+    "tts": "sarvam"
+  },
+  "llm": {
+    "claude": {
+      "model": "claude-haiku-4-5-20251001",
+      "maxTokens": 150
+    },
+    "openai": {
+      "model": "gpt-4o-mini",
+      "maxTokens": 150
+    }
+  },
+  "stt": {
+    "deepgram": {
+      "model": "nova-2",
+      "language": "hi"
+    },
+    "sarvam": {
+      "model": "saaras:v1",
+      "language": "hi-IN"
+    }
+  },
+  "tts": {
+    "sarvam": {
+      "voice": "anushka",
+      "language": "hi-IN"
+    },
+    "azure": {
+      "voice": "hi-IN-SwaraNeural",
+      "language": "hi-IN"
+    }
+  }
+}
