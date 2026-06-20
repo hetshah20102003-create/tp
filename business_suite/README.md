@@ -22,6 +22,15 @@ AuditLog, etc.).
 
 ## Quick start
 
+One command (creates a virtualenv, installs deps, seeds on first run, serves):
+
+```bash
+./business_suite/run.sh            # http://localhost:8000
+PORT=8001 ./business_suite/run.sh  # custom port if 8000 is busy
+```
+
+Or do it manually:
+
 ```bash
 pip install -r business_suite/requirements.txt
 python -m business_suite.seed          # create DB + demo data
