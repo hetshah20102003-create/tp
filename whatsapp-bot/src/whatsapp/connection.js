@@ -1,10 +1,16 @@
-import baileysPkg from "@whiskeysockets/baileys";
-import qrcode from "qrcode-terminal";
+import path from "node:path";
+import {
+  makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+  fetchLatestBaileysVersion,
+} from "@whiskeysockets/baileys";
+import qrcodeTerminal from "qrcode-terminal";
+import QRCode from "qrcode";
 import pino from "pino";
-import { AUTH_DIR } from "../config.js";
+import { AUTH_DIR, PROJECT_ROOT } from "../config.js";
 
-const { makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } =
-  baileysPkg;
+const QR_IMAGE_PATH = path.join(PROJECT_ROOT, "qr.png");
 
 function extractText(message) {
   return (
@@ -41,7 +47,10 @@ export async function startWhatsApp(onMessage) {
 
     if (qr) {
       console.log("\nScan this QR code with WhatsApp (Settings > Linked Devices > Link a Device):\n");
-      qrcode.generate(qr, { small: true });
+      qrcodeTerminal.generate(qr, { small: true });
+      QRCode.toFile(QR_IMAGE_PATH, qr, { width: 400 }).catch((err) =>
+        console.error("Failed to write QR image:", err)
+      );
     }
 
     if (connection === "close") {
