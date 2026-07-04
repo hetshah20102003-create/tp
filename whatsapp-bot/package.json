@@ -1,0 +1,20 @@
+{
+  "name": "worryq-whatsapp-bot",
+  "version": "0.1.0",
+  "description": "AI-powered WhatsApp bot for WorryQ — bookings, tracking, pricing, policies, and human escalation",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@whiskeysockets/baileys": "^6.7.9",
+    "better-sqlite3": "^11.5.0",
+    "dotenv": "^16.4.5",
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

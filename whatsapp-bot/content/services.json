@@ -1,0 +1,48 @@
+{
+  "_instructions": "Edit the list below with your real labour types and rates. currency is a free-text symbol/code. min_workers is the smallest booking size you allow for that labour type. Delete this _instructions key or leave it — the bot ignores it.",
+  "currency": "INR",
+  "services": [
+    {
+      "id": "helper",
+      "name": "General Helper",
+      "rate_per_hour": 120,
+      "min_workers": 1,
+      "description": "Loading, unloading, cleaning, general manual work"
+    },
+    {
+      "id": "mason",
+      "name": "Mason",
+      "rate_per_hour": 250,
+      "min_workers": 1,
+      "description": "Bricklaying, plastering, tiling"
+    },
+    {
+      "id": "electrician",
+      "name": "Electrician",
+      "rate_per_hour": 300,
+      "min_workers": 1,
+      "description": "Wiring, fixture installation, minor repairs"
+    },
+    {
+      "id": "plumber",
+      "name": "Plumber",
+      "rate_per_hour": 280,
+      "min_workers": 1,
+      "description": "Pipe fitting, leak repair, fixture installation"
+    },
+    {
+      "id": "painter",
+      "name": "Painter",
+      "rate_per_hour": 200,
+      "min_workers": 1,
+      "description": "Wall painting, touch-ups, finishing"
+    },
+    {
+      "id": "mover",
+      "name": "Mover / Shifting Help",
+      "rate_per_hour": 150,
+      "min_workers": 2,
+      "description": "Furniture and household shifting"
+    }
+  ]
+}
